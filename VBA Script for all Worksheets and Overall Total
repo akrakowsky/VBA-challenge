@@ -1,0 +1,144 @@
+Sub Stock()
+
+    'Set Dimensions
+    Dim Total As Double
+    Dim i As Long
+    Dim j As Integer
+    Dim Change As Double
+    Dim percentChange As Double
+    Dim Start As Long
+    Dim rowCount As Long
+    Dim days As Integer
+    Dim averageChange As Double
+    Dim dailychange As Double
+    Dim ws As Worksheet
+        
+     'All Sheets
+        For Each ws In Worksheets
+                'Values
+                j = 0
+                Total = 0
+                Change = 0
+                Start = 2
+                dailychange = 0
+            
+    'Row titles
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+    
+    'Get last row
+    rowCount = ws.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    'Loop
+    For i = 2 To rowCount
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+            Total = Total + ws.Cells(i, 7).Value
+        
+                If Total = 0 Then
+                    ws.Range("i" & 2 + j).Value = ws.Cells(i, 1).Value
+                    ws.Range("j" & 2 + j).Value = 0
+                    ws.Range("K" & 2 + j).Value = "%" & 0
+                    ws.Range("L" & 2 + j).Value = 0
+                Else
+                    If ws.Cells(Start, 3) = 0 Then
+                        For find_value = Start To i
+                            If ws.Cells(find_value, 3).Value <> 0 Then
+                            Start = find_value
+                            Exit For
+                            End If
+                    Next find_value
+                    End If
+        
+        'Find Change
+        Change = (ws.Cells(i, 6) - ws.Cells(Start, 3))
+        percentChange = Round((Change / ws.Cells(Start, 3) * 100), 2)
+        
+        Start = i + 1
+        
+        ws.Range("i" & 2 + j).Value = ws.Cells(i, 1).Value
+        ws.Range("j" & 2 + j).Value = Round(Change, 2)
+        ws.Range("K" & 2 + j).Value = "%" & percentChange
+        ws.Range("L" & 2 + j).Value = Total
+        
+        'Add colors where green is positive and red is negative
+            If Change > 0 Then
+                ws.Range("j" & 2 + j).Interior.Color = vbGreen
+            ElseIf Change < 0 Then
+                ws.Range("j" & 2 + j).Interior.Color = vbRed
+            Else
+                ws.Range("j" & 2 = j).Interior.ColorIndex = 0
+            End If
+            
+            End If
+        
+        'reset value for new stockTicker
+        Total = 0
+        Change = 0
+        j = j + 1
+        days = 0
+        dailychange = 0
+        
+        Else
+            Total = Total + ws.Cells(i, 7).Value
+                    
+        End If
+
+    Next i
+
+'Titles for overall stock values
+    ws.Cells(2, 15).Value = "Greatest % Increase"
+    ws.Cells(3, 15).Value = "Greatest % Decrease"
+    ws.Cells(4, 15).Value = "Greatest Total Volume"
+    ws.Cells(1, 16).Value = "Ticker"
+    ws.Cells(1, 17).Value = "Value"
+    
+    lastrow = ws.Cells(Rows.Count, 9).End(xlUp).Row
+    
+
+    Dim best_stock As String
+    Dim best_value As Double
+    best_value = ws.Cells(2, 11).Value
+    
+    Dim worst_stock As String
+    Dim worst_value As Double
+    worst_value = ws.Cells(2, 11).Value
+    
+    Dim most_vol_stock As String
+    Dim most_vol_value As Double
+    most_vol_value = ws.Cells(2, 12).Value
+    
+    For o = 2 To lastrow
+        If ws.Cells(o, 11).Value > best_value Then
+            best_value = ws.Cells(o, 11).Value
+            best_stock = ws.Cells(o, 9).Value
+        End If
+        
+        If ws.Cells(o, 11).Value < worst_value Then
+            worst_value = ws.Cells(o, 11).Value
+            worst_stock = ws.Cells(o, 9).Value
+        End If
+        
+        If ws.Cells(o, 12).Value > most_vol_value Then
+            most_vol_value = ws.Cells(o, 12).Value
+            most_vol_stock = ws.Cells(o, 9).Value
+        End If
+        
+        'Place data in table
+        ws.Cells(2, 16).Value = best_stock
+        ws.Cells(2, 17).Value = best_value
+        ws.Cells(2, 17).NumberFormat = "0.00%"
+        ws.Cells(3, 16).Value = worst_stock
+        ws.Cells(3, 17).Value = worst_value
+        ws.Cells(3, 17).NumberFormat = "0.00%"
+        ws.Cells(4, 16).Value = most_vol_stock
+        ws.Cells(4, 17).Value = most_vol_value
+        ws.Columns("I:L").EntireColumn.AutoFit
+        ws.Columns("O:Q").EntireColumn.AutoFit
+    Next o
+ 
+    Next ws
+    
+   
+End Sub
